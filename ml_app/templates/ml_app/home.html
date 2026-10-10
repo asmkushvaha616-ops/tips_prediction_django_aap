@@ -1,0 +1,241 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f5ef">
+    <title>Tipwise — Tip estimator</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --ink: #20352e;
+            --muted: #718078;
+            --green: #1f6049;
+            --green-dark: #164a38;
+            --lime: #d9f079;
+            --paper: #fffefa;
+            --line: #e7e9df;
+            --canvas: #f7f5ef;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(ellipse at 88% 6%, rgba(217, 240, 121, .25), transparent 24rem),
+                var(--canvas);
+            color: var(--ink);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            min-height: 100vh;
+        }
+
+        .shell { width: min(1120px, calc(100% - 48px)); margin: 0 auto; }
+
+        .topbar {
+            height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(32, 53, 46, .09);
+        }
+
+        .brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); text-decoration: none; font-weight: 760; letter-spacing: -.04em; font-size: 20px; }
+        .brand-mark {
+            height: 34px; width: 34px; display: grid; place-items: center;
+            border-radius: 11px; background: var(--green); color: var(--lime);
+            font-size: 18px;
+        }
+        .nav-links { display: flex; align-items: center; gap: 27px; }
+        .nav-link { color: #53635b; text-decoration: none; font-size: 13px; font-weight: 630; transition: color .16s; }
+        .nav-link:hover, .nav-link[aria-current="page"] { color: var(--green); }
+        .nav-cta { padding: 11px 16px; border-radius: 999px; background: var(--green); color: white; }
+        .nav-cta:hover { color: white; background: var(--green-dark); }
+
+        main { padding: 50px 0 72px; }
+        .intro { max-width: 930px; margin: 0 auto 43px; display: grid; grid-template-columns: 1.15fr .85fr; align-items: center; gap: 32px; text-align: left; }
+        .intro-copy { padding: 14px 0; }
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--green); font-size: 11px; font-weight: 760;
+            letter-spacing: .13em; text-transform: uppercase;
+        }
+        .eyebrow::before { content: ""; height: 7px; width: 7px; border-radius: 50%; background: #8cae38; }
+        h1 { margin: 16px 0 15px; font-size: clamp(42px, 6vw, 68px); line-height: .99; letter-spacing: -.075em; }
+        h1 em { color: #548267; font-style: normal; }
+        .intro p { max-width: 440px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+        .hero-art {
+            min-height: 250px; position: relative; display: grid; place-items: center; overflow: hidden;
+            border-radius: 26px; background: #e9eddb;
+        }
+        .hero-art::before, .hero-art::after { content: ""; position: absolute; border: 1px solid rgba(31, 96, 73, .12); border-radius: 50%; }
+        .hero-art::before { width: 250px; height: 250px; }
+        .hero-art::after { width: 310px; height: 310px; }
+        .plate { width: 176px; height: 176px; z-index: 1; display: grid; place-items: center; border: 9px solid #fffefa; border-radius: 50%; background: #d9e8c4; box-shadow: 0 15px 38px rgba(38, 69, 47, .14); }
+        .plate-inner { width: 130px; height: 130px; display: grid; place-items: center; border: 1px solid rgba(31, 96, 73, .16); border-radius: 50%; color: #487a56; font-size: 54px; }
+        .float-card { position: absolute; z-index: 2; right: 9%; bottom: 24px; padding: 12px 16px; border: 1px solid rgba(32,53,46,.06); border-radius: 14px; background: #fffefa; box-shadow: 0 10px 25px rgba(34,54,44,.1); }
+        .float-card small { display: block; color: var(--muted); font-size: 10px; }
+        .float-card strong { display: block; margin-top: 3px; color: var(--green); font-size: 20px; letter-spacing: -.04em; }
+
+        .workspace {
+            display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(270px, .75fr);
+            max-width: 930px; margin: 0 auto; overflow: hidden; border-radius: 24px;
+            background: var(--paper); box-shadow: 0 24px 70px rgba(34, 54, 44, .09);
+            border: 1px solid rgba(32, 53, 46, .06);
+        }
+
+        .form-panel { padding: 36px 40px 38px; }
+        .section-heading { margin-bottom: 27px; }
+        .section-heading h2 { margin: 0 0 6px; font-size: 20px; letter-spacing: -.035em; }
+        .section-heading p { margin: 0; color: var(--muted); font-size: 13px; }
+        .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 16px; }
+        .field { min-width: 0; }
+        .field label { display: block; margin: 0 0 8px; color: #43564d; font-size: 12px; font-weight: 680; }
+        .form-control {
+            width: 100%; height: 48px; border: 1px solid var(--line); border-radius: 10px;
+            padding: 0 13px; background: #fff; color: var(--ink); font: inherit; font-size: 14px;
+            outline: none; transition: border-color .16s, box-shadow .16s;
+        }
+        .form-control:focus { border-color: #6c9a7e; box-shadow: 0 0 0 3px rgba(59, 120, 83, .12); }
+        .form-control::placeholder { color: #a2aaa3; }
+        select.form-control { cursor: pointer; }
+        .error-list { margin: 7px 0 0; padding: 0; list-style: none; color: #b33b36; font-size: 12px; }
+        .non-field-errors { margin: 0 0 18px; color: #b33b36; font-size: 13px; }
+
+        .submit-row { margin-top: 26px; display: flex; align-items: center; gap: 15px; }
+        .submit-button {
+            min-height: 50px; flex: 1; display: inline-flex; justify-content: center; align-items: center; gap: 10px;
+            border: 0; border-radius: 11px; background: var(--green); color: white; cursor: pointer;
+            font: inherit; font-size: 14px; font-weight: 690; transition: background .16s, transform .16s;
+        }
+        .submit-button:hover { background: var(--green-dark); transform: translateY(-1px); }
+        .submit-button:focus-visible { outline: 3px solid rgba(59, 120, 83, .35); outline-offset: 3px; }
+        .submit-button span { color: var(--lime); font-size: 18px; }
+        .secure-note { color: var(--muted); font-size: 11px; line-height: 1.45; }
+
+        .result-panel {
+            position: relative; display: flex; flex-direction: column; justify-content: space-between;
+            padding: 36px 30px 29px; overflow: hidden; background: var(--green); color: #fff;
+        }
+        .result-panel::after {
+            content: ""; position: absolute; height: 250px; width: 250px; right: -120px; top: 70px;
+            border: 1px solid rgba(255, 255, 255, .1); border-radius: 50%;
+            box-shadow: 0 0 0 28px rgba(255,255,255,.025), 0 0 0 58px rgba(255,255,255,.025);
+            pointer-events: none;
+        }
+        .result-content, .result-footer { position: relative; z-index: 1; }
+        .result-kicker { color: #c4d6ca; font-size: 11px; font-weight: 720; letter-spacing: .12em; text-transform: uppercase; }
+        .result-panel h2 { margin: 14px 0 8px; font-size: 25px; letter-spacing: -.045em; }
+        .result-copy { margin: 0; max-width: 240px; color: #c4d6ca; font-size: 13px; line-height: 1.6; }
+        .amount {
+            margin: 44px 0 4px; color: var(--lime); font-variant-numeric: tabular-nums;
+            font-size: clamp(42px, 5vw, 58px); font-weight: 740; letter-spacing: -.07em; line-height: 1;
+        }
+        .amount-label { color: #c4d6ca; font-size: 12px; }
+        .result-footer { padding-top: 18px; border-top: 1px solid rgba(255,255,255,.16); color: #d4e0d8; font-size: 11px; line-height: 1.55; }
+
+        .footnote { margin: 22px auto 0; max-width: 930px; color: #87918a; font-size: 11px; text-align: center; }
+        @media (max-width: 760px) {
+            main { padding: 48px 0; }
+            .intro { grid-template-columns: 1fr; gap: 24px; }
+            .hero-art { min-height: 210px; }
+            .workspace { grid-template-columns: 1fr; }
+            .result-panel { min-height: 270px; }
+            .amount { margin-top: 28px; }
+        }
+        @media (max-width: 520px) {
+            .shell { width: min(100% - 32px, 1120px); }
+            .topbar { height: 70px; }
+            .nav-links { gap: 13px; }
+            .nav-link { font-size: 12px; }
+            .nav-cta { padding: 9px 12px; }
+            .intro { margin-bottom: 28px; }
+            .intro p { font-size: 14px; }
+            .form-panel { padding: 27px 22px 25px; }
+            .fields { grid-template-columns: 1fr; gap: 16px; }
+            .submit-row { align-items: stretch; flex-direction: column; }
+            .secure-note { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <header class="topbar">
+            <a class="brand" href="{% url 'ml_app:home' %}"><span class="brand-mark" aria-hidden="true">✳</span> tipwise</a>
+            <nav class="nav-links" aria-label="Main navigation">
+                <a class="nav-link" href="{% url 'ml_app:how_it_works' %}">How it works</a>
+                <a class="nav-link nav-cta" href="#estimate">Estimate tip</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="intro" aria-labelledby="page-title">
+                <div class="intro-copy">
+                    <div class="eyebrow">Your table, estimated</div>
+                    <h1 id="page-title">Good meals.<br><em>Thoughtful tips.</em></h1>
+                    <p>Make your next meal a little easier. Tell us about your table and get a quick, data-informed tip suggestion.</p>
+                </div>
+                <div class="hero-art" aria-hidden="true">
+                    <div class="plate"><div class="plate-inner">✳</div></div>
+                    <div class="float-card"><small>Your estimate</small><strong>Made for your meal</strong></div>
+                </div>
+            </section>
+
+            <section id="estimate" class="workspace" aria-label="Tip prediction">
+                <div class="form-panel">
+                    <div class="section-heading">
+                        <h2>Tell us about your meal</h2>
+                        <p>All six details help us make a more thoughtful estimate.</p>
+                    </div>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                            <div class="non-field-errors">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        <div class="fields">
+                            {% for field in form %}
+                                <div class="field">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}
+                                        <ul class="error-list">
+                                            {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="submit-row">
+                            <button class="submit-button" type="submit">Estimate my tip <span aria-hidden="true">↗</span></button>
+                            <div class="secure-note">Your details are used only<br>to calculate this estimate.</div>
+                        </div>
+                    </form>
+                </div>
+
+                <aside class="result-panel" aria-live="polite">
+                    <div class="result-content">
+                        <div class="result-kicker">{% if prediction is not None %}Your estimate{% else %}The result{% endif %}</div>
+                        {% if prediction is not None %}
+                            <h2>Tip suggestion</h2>
+                            <p class="result-copy">A model-based estimate for a meal like yours.</p>
+                            <div class="amount">${{ prediction|floatformat:2 }}</div>
+                            <div class="amount-label">Suggested tip</div>
+                        {% else %}
+                            <h2>Ready when you are</h2>
+                            <p class="result-copy">Enter your meal details to see your personalized tip estimate here.</p>
+                            <div class="amount" aria-hidden="true">—</div>
+                            <div class="amount-label">Your tip appears here</div>
+                        {% endif %}
+                    </div>
+                    <div class="result-footer">
+                        Estimates are a helpful starting point, not a rule. Tip what feels right for your experience.
+                    </div>
+                </aside>
+            </section>
+            <p class="footnote">Tipwise uses the meal details you provide to generate an estimate.</p>
+        </main>
+    </div>
+</body>
+</html>
