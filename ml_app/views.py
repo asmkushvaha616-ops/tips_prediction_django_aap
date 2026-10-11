@@ -10,7 +10,7 @@ from .forms import TipPredictionForm
 
 
 FEATURE_NAMES = ["total_bill", "sex", "smoker", "day", "time", "size"]
-MODEL_PATH = settings.BASE_DIR.parent / "ml_project" / "models" / "xgb_model.pkl"
+MODEL_PATH = settings.BASE_DIR / "ml_app" / "models" / "xgb_model.pkl"
 
 
 @lru_cache(maxsize=1)
