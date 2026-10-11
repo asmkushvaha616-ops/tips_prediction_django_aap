@@ -1,3 +1,14 @@
+
+# Tipwise — Tip Estimator
+
+A machine learning web application that predicts restaurant tips using an XGBoost model and Django.
+
+**Live Demo:** https://tips-prediction-django-aap.onrender.com
+
+**Tech Stack:** Python, Django, XGBoost, HTML, CSS
+
+---
+
 # python ml model deployment with django
 
 A machine learning model deployment project using Python and Django. This project demonstrates how a trained ML model can be integrated with a Django web application to make predictions through a user-friendly interface.
